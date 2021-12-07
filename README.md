@@ -1,6 +1,6 @@
 # DecisionTree
 ## Bài Tập Lớn Decision Tree môn Cấu trúc dữ liệu và giải thuật kỳ 1 năm học 2021-2022.
-## Thành viên: Trịnh ngọc Huỳnh MSV 20020039.
+## Thành viên: Trịnh Ngọc Huỳnh MSV 20020054.
 ## Giáo viên hướng dẫn: CN Nguyễn Đình Tuân.
 ***
 ## 1. Giới thiệu bộ dữ liệu và ouput:
