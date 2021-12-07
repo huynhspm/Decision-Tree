@@ -54,5 +54,13 @@
  ### - Cải thiện: Thay vì chọn ngẫu nhiên Minsize, Maxdepth thì đã cố định được tốt nhất và tránh được overfitting khi chọn. 
  ### - Accuracy in validTest: 83% và Accuracy in trainTest: 80% với maxDepth = 6, MinSize = 7.
  ***
- ### Update 2:
- 
+ ## Update 2: thay thể GiniSplit bằng gainSplit và gainRatio cùng với entropy để tham lam
+ - cách sử dụng và cách tính xem tai: https://bigdatauni.com/tin-tuc/thuat-toan-cay-quyet-dinh-p-3-c4-5-entropy.html
+ ###  - Accuracy in validTest: 85% và Accuracy in trainTest: 76% với maxDepth = 9, MinSize = 6 - gainRatio.
+ ###  - Accuracy in validTest: 86% và Accuracy in trainTest: 77% với maxDepth = 5, MinSize = 3 - gainSplit.
+ ## Update 3: thêm điều kiện dừng khi Node đã pure.
+ - Khi Node có giniScore = 0 hay toàn bộ data cùng label thì không chia nữa
+ ### - Cải thiện : Giảm độ cao của cây
+ ## Updata 4: sử dụng cross validation để chia train thành 2 tập để build và test
+ - Do data ít: có thể một số điểm dữ liệu có ích cho qúa trình train đã bị bạn ném vào để làm validation, test và model không có cơ hội học điểm dữ liệu đó. Thậm chí, đôi khi do ít dữ liệu nên có một vài class chỉ có trong validation, test mà không có trong train (do việc chia train, val là hoàn toàn ngẫu nhiên) dẫn đến một kết quả tồi tệ khi validation và test. Và nếu chúng ta dựa ngay vào kết quả đó để đánh giá rằng model không tốt thì thật là oan uổng cho nó giống như một học sinh không được học Tiếng Anh mà phải đi thi TOEFL vậy =))
+ ### Cải thiện: Accuracy in validTest: 86% và Accuracy in trainTest: 83% với maxDepth = 8, MinSize = 3 - sử dụng gainSplit.
