@@ -8,7 +8,7 @@
 -Bộ dữ liệu về Balance-Scale gồm 4 thuộc tính và 3 nhãn L(Left), R(Right), B(Balance).
 - File train.txt có 439 bản ghi dùng để build decision tree.
 - File valid.txt có 93 bản ghi dùng để test decision.tree.
-- File Decision Tree.pptx giới thiệu về những đặc điểm cơ bản Decision Tree, GiniScore, Entropy, Split Gain, Ratio Gain, Confusion Matrix, Hyperparameter Search, Cross Validation.
+- File Decision Tree.pptx giới thiệu về những đặc điểm cơ bản Decision Tree, GiniScore, Entropy, Split Gain, Confusion Matrix, Hyperparameter Search, Cross Validation.
 ### Output:
 - Với file train.txt ta sẽ xây decision tree và test thử trên valid. Test cuối cùng là thầy test lại bằng file của thầy
 - Print tree: in ra cây quyết định.
@@ -18,7 +18,7 @@
 - Accuracy of valid: accuracy khi test thử trên valid.
 - confusionMatrix: Bảng 3x3 với cột là dự doán. Cột là true label, hàng là predict label. 
 ### 2. Giới thiệu thuật toán, module implement:
-- Decision Trê: xây dựng cây quyết định theo cách tham lam và đệ quy từ gốc xuống lá
+- Decision Tree: xây dựng cây quyết định theo cách tham lam và đệ quy từ gốc xuống lá
 - Hyperparameter search: chạy các trường hợp minSize và maxDepth từ đó đánh giá giá trị minSize và maxDepth tốt nhất.
 - Cross validation: Chia train ra làm phần để build và phần test. Cross validation sẽ chia đều cho các phần rồi tính giá trị trung bình. Từ đó sẽ khách quan hơn, giảm overfitting.
 - Confusion Matrix: Bảng đối chiếu nxn với n là số thuộc tính để biết được số lượng nhãn true label, nhãn wrong label và đoán sai nhãn nào thành nhãn nào
@@ -33,7 +33,6 @@
 - getGiniSplit: tính giniSplit dựa vào Node cha và 2 Node con
 - getEntropyEachGroup: tính entropy của 1 tập data
 - getGainSplit: tính gainSplitdựa vào Node cha và 2 Node con
-- getGainRatio: tính gainRatio dựa vào Node cha và 2 Node con
 - splitData: chia data thành 2 phần dựa vào index của attrivute và value của attribute mang ra chia
 - findLabel: tìm label có tỉ lệ cao nhất trong data
 - buildTree: 
@@ -52,15 +51,15 @@
  ## Update 1: chạy Hyperparameter tìm minSize, maxDepth tối ưu cùng với sử dụng GiniSplit để tham lam
  - for maxDepth và minSize trong khoảng 1 -> 10 vì lớn hơn 10 thì accuracy không tăng nữa
  - **Cải thiện: Thay vì chọn ngẫu nhiên Minsize, Maxdepth thì đã cố định được tốt nhất và tránh được overfitting khi chọn.**
- - **Accuracy in validTest: 83% và Accuracy in trainTest: 80% với maxDepth = 6, MinSize = 7.**
+ - **Accuracy in validTest: 78% và Accuracy in trainTest: 94% với maxDepth = 7, MinSize = 1.**
  ***
- ## Update 2: thay thể GiniSplit bằng gainSplit và gainRatio cùng với entropy để tham lam
+ ## Update 2: thay thể GiniSplit bằng gainSplit cùng với entropy để tham lam
  - cách sử dụng và cách tính xem tai: https://bigdatauni.com/tin-tuc/thuat-toan-cay-quyet-dinh-p-3-c4-5-entropy.html
- - **Accuracy in validTest: 85% và Accuracy in trainTest: 76% với maxDepth = 9, MinSize = 6 - gainRatio.**
- - **Accuracy in validTest: 86% và Accuracy in trainTest: 77% với maxDepth = 5, MinSize = 3 - gainSplit.**
- ## Update 3: thêm điều kiện dừng khi Node đã pure.
+ - **Accuracy in validTest: 79% và Accuracy in trainTest: 96% với maxDepth = 8, MinSize = 1.**
+ ## Update 3: thêm điều kiện dừng.
  - Khi Node có giniScore = 0 hay toàn bộ data cùng label thì không chia nữa
+ - Nếu 2 Node con có cùng label thì xóa con và set label cho Node cha
  - **Cải thiện : Giảm độ cao của cây**
  ## Updata 4: sử dụng cross validation để chia train thành 2 tập để build và test
  - Do data ít: có thể một số điểm dữ liệu có ích cho qúa trình train đã bị bạn ném vào để làm validation, test và model không có cơ hội học điểm dữ liệu đó. Thậm chí, đôi khi do ít dữ liệu nên có một vài class chỉ có trong validation, test mà không có trong train (do việc chia train, val là hoàn toàn ngẫu nhiên) dẫn đến một kết quả tồi tệ khi validation và test. Và nếu chúng ta dựa ngay vào kết quả đó để đánh giá rằng model không tốt thì thật là oan uổng cho nó giống như một học sinh không được học Tiếng Anh mà phải đi thi TOEFL vậy =))
- - **Cải thiện: Accuracy in validTest: 86% và Accuracy in trainTest: 83% với maxDepth = 8, MinSize = 3 - sử dụng gainSplit.**
+ - **Cải thiện: Accuracy in validTest: 76% và Accuracy in trainTest: 88% với maxDepth = 8, MinSize = 8 - sử dụng gainSplit.**
