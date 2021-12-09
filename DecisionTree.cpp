@@ -33,33 +33,6 @@ struct Data{
     int att[num_att];
 };
 
-double goodnessOfBestSplit(vector<Data> data, vector<Data> data_left, vector<Data> data_right){
-    double ratioLeft = (double) data_left.size() / data.size();
-    double ratioRight = 1 - ratioLeft;
-
-    map<char, int> ma_left;
-    for(Data x : data) ma_left[x.label] ++;
-
-    map<char, int> ma_right;
-    for(Data x : data) ma_right[x.label] ++;
-
-    double res = 0;
-    for(auto it : ma_left){
-        double p_left = (double) it.second / data_left.size();
-        double p_right = ma_right[it.first] / data_right.size();
-        res += abs(p_left - p_right);
-    }
-
-    for(auto it : ma_right){
-        if(ma_left[it.first] == 0){
-            double p_right = (double) it.second / data_right.size();
-            res += p_right;
-        }
-    }
-
-    return 2 * ratioLeft * ratioRight * res;
-}
-
 double getGiniEachGroup(vector<Data> data){
     map<char, int> ma;
     for(Data x : data) ma[x.label] ++;
@@ -96,14 +69,6 @@ double getGainSplit(vector<Data> data, vector<Data> data_left, vector<Data> data
     return getEntropyEachGroup(data)
            - getEntropyEachGroup(data_left)* ratioLeft
            - getEntropyEachGroup(data_right)* ratioRight;
-}
-
-double getGainRatio(vector<Data> data, vector<Data> data_left, vector<Data> data_right){
-    double ratioLeft = (double) data_left.size() / data.size();
-    double ratioRight = 1 - ratioLeft;
-
-    double splitInfo = -(ratioLeft * log(ratioLeft) + ratioRight * log(ratioRight)) / log(2);
-    return getGainSplit(data, data_left, data_right) / splitInfo;
 }
 
 void splitData(vector<Data> data, vector<Data> &data_left, vector<Data> &data_right, int index, int value){
@@ -143,9 +108,7 @@ void buildTree(Node *&pa, vector<Data> data, int depth, int maxDepth, int minSiz
         splitData(data, data_left, data_right, i, j);
         if(data_left.empty() || data_right.empty()) continue;
 
-        double giniSplit = -getGiniSplit(data, data_left, data_right);       // get max
-        double gainSplit = getGainSplit(data, data_left, data_right);        // get max
-        double gainRatio = getGainRatio(data, data_left, data_right);        // get max
+        double gainSplit = getGainSplit(data, data_left, data_right);
 
         if(maxValue < gainSplit){
             maxValue = gainSplit;
@@ -157,11 +120,16 @@ void buildTree(Node *&pa, vector<Data> data, int depth, int maxDepth, int minSiz
     splitData(data, data_left, data_right, pa -> index, pa -> value);
     buildTree(pa -> left, data_left, depth + 1, maxDepth, minSize);
     buildTree(pa -> right, data_right, depth + 1, maxDepth, minSize);
+    if(pa -> left -> label != '0' && pa -> left -> label == pa -> right -> label){
+       char label = pa -> left -> label;
+       pa = new Node();
+       pa -> label = label;
+    }
 }
 
 char checkData(Node *&pa, Data current_data){
     if(pa -> left == NULL) return pa -> label;
-    if(current_data.att[pa -> index] < pa -> value) return checkData(pa -> left, current_data);
+    if(current_data.att[pa -> index] <= pa -> value) return checkData(pa -> left, current_data);
     return checkData(pa -> right, current_data);
 }
 
@@ -184,12 +152,15 @@ void showTree(Node *&pa, int depth){
 
 void showWrongData(vector<Data> data, Node *&root){
     cout << "data is guessed wrongly:" << endl;
-    for(Data current_data : data)
-        if(checkData(root, current_data) != current_data.label){
+    for(Data current_data : data){
+        char predict_label = checkData(root, current_data);
+        if(predict_label != current_data.label){
             cout << current_data.label << ' ';
             For(i, 0, num_att - 1) cout << current_data.att[i] << ' ';
+            cout << ' ' << predict_label;
             cout << endl;
         }
+    }
     cout << endl;
 }
 
@@ -237,6 +208,7 @@ void shuffleData(vector<Data> &data){
 
 void crossValidation(vector<Data> data, vector<Data> *fold){
     // 202 L, R - 35 B
+
     map<char, int> ma;
     ma['L'] = 0;
     ma['B'] = 1;
@@ -249,6 +221,9 @@ void crossValidation(vector<Data> data, vector<Data> *fold){
     For(i, 0, 2)
     for(int j = 0; j < dataLabel[i].size(); ++ j)
         fold[j % numFold].pb(dataLabel[i][j]);
+
+
+    //for(int i = 0; i < data.size(); ++ i) fold[i % numFold].pb(data[i]);
 }
 
 void findDataTrainDataTest(vector<Data> &data_train, vector<Data> &data_valid, vector<Data> *fold, int idFold){
@@ -267,18 +242,20 @@ signed main(){
 
     inputData(data_train, "train.txt");
     inputData(data_valid, "valid.txt");
+    inputData(data_hidden, "hidden.txt");
 
     crossValidation(data_train, fold);
 
     Node *root = NULL;
     double bestSolution = 0;
     int maxDepth, minSize;
-    For(i, 3, 10) For(j, 3, 10){
 
+     For(j, 1, 10) For(i, 1, 10){
         double sumKTrain = 0;
         For(idFoldValid, 0, numFold - 1){
             vector<Data> newData_train, newData_valid;
             findDataTrainDataTest(newData_train, newData_valid, fold, idFoldValid);
+
             buildTree(root, newData_train, 0, i, j);
             sumKTrain += calculateAccuracy(newData_valid, root);
         }
@@ -289,13 +266,14 @@ signed main(){
         }
     }
 
-    buildTree(root, data_train, 0, maxDepth, minSize);
-
     cout << "maxdepth: " << maxDepth << endl;
     cout << "minsize: " << minSize << endl;
 
+    buildTree(root, data_train, 0, maxDepth, minSize);
+
     cout << "accuracy of valid data: " << calculateAccuracy(data_valid, root) << endl;
     cout << "accuracy of train data: " << calculateAccuracy(data_train, root) << endl;
+    cout << "accuracy of hidden data: " << calculateAccuracy(data_hidden, root) << endl;
 
     cout << endl;
     cout << "show tree in preorder way: " << endl;
