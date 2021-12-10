@@ -17,12 +17,12 @@
 - Accuracy of train: accuracy khi dự đoán chính train đã xây cây.
 - Accuracy of valid: accuracy khi test thử trên valid.
 - confusionMatrix: Bảng 3x3 với cột là dự doán. Cột là true label, hàng là predict label. 
-### 2. Giới thiệu thuật toán, module implement:
+## 2. Giới thiệu thuật toán, module implement:
 - Decision Tree: xây dựng cây quyết định theo cách tham lam và đệ quy từ gốc xuống lá
 - Hyperparameter search: chạy các trường hợp minSize và maxDepth từ đó đánh giá giá trị minSize và maxDepth tốt nhất.
 - Cross validation: Chia train ra làm phần để build và phần test. Cross validation sẽ chia đều cho các phần rồi tính giá trị trung bình. Từ đó sẽ khách quan hơn, giảm overfitting.
 - Confusion Matrix: Bảng đối chiếu nxn với n là số thuộc tính để biết được số lượng nhãn true label, nhãn wrong label và đoán sai nhãn nào thành nhãn nào
-### 3. Giới thiệu cấu trúc:
+## 3. Giới thiệu cấu trúc:
 - source code ở file decisionTree.cpp.
 - struct Node: 
       +) lưu lại index ở attribute và giá trị của attribute để chia tập data thành 2 phần
@@ -58,7 +58,7 @@
  ## Update 3: thêm điều kiện dừng.
  - Khi Node có giniScore = 0 hay toàn bộ data cùng label thì không chia nữa
  - - Nếu 2 Node con có cùng label thì xóa con và set label cho Node cha
- ### - Cải thiện : Giảm độ cao của cây
+ - **Cải thiện : Giảm độ cao của cây**
  ## Updata 4: sử dụng cross validation để chia train thành 2 tập để build và test
  - Do data ít: có thể một số điểm dữ liệu có ích cho qúa trình train đã bị bạn ném vào để làm validation, test và model không có cơ hội học điểm dữ liệu đó. Thậm chí, đôi khi do ít dữ liệu nên có một vài class chỉ có trong validation, test mà không có trong train (do việc chia train, val là hoàn toàn ngẫu nhiên) dẫn đến một kết quả tồi tệ khi validation và test. Và nếu chúng ta dựa ngay vào kết quả đó để đánh giá rằng model không tốt thì thật là oan uổng cho nó giống như một học sinh không được học Tiếng Anh mà phải đi thi TOEFL vậy =))
 - **Cải thiện: Accuracy in validTest: 76% và Accuracy in trainTest: 88% với maxDepth = 8, MinSize = 8 - sử dụng gainSplit.**
